@@ -55,6 +55,7 @@ class _AddNewHabitState extends State<AddNewHabit> {
               SizedBox(height: 20,),
               CustomField(
                 label: 'Habit Name',
+                backgroundColor: Colors.white,
                 controller: titleHabit,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -66,6 +67,7 @@ class _AddNewHabitState extends State<AddNewHabit> {
               SizedBox(height: 10),
               CustomField(
                 label: 'Habit Description',
+                backgroundColor: Colors.white,
                 controller: descHabit,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
