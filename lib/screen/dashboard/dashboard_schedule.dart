@@ -127,7 +127,7 @@ class _DashboardSchedule extends ConsumerState<DashboardSchedule> {
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: const Text("Success"),
+                                title: const Text("CAREFUL 🙏"),
                                 content: Text("this ${activity.title} habit will be deleted, are you really sure?"),
                                 actionsPadding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 10),
                                 actions: [
