@@ -4,6 +4,7 @@ import 'package:tugas_habitly/style/app_color.dart';
 import 'package:tugas_habitly/widget/custom_field.dart';
 
 class RegisterScreen extends StatefulWidget {
+  static const routeName = '/register';
   const RegisterScreen({super.key});
 
   @override

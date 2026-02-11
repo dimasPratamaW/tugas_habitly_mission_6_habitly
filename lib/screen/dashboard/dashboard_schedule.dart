@@ -1,18 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tugas_habitly/models/list_habit_hive.dart';
+import 'package:tugas_habitly/screen/controller/list_habit_controller.dart';
 import 'package:tugas_habitly/style/app_color.dart';
 
-class DashboardSchedule extends StatefulWidget {
+class DashboardSchedule extends ConsumerStatefulWidget {
   static const routeName = '/dashboard_schedule';
-  final List<Map<String, dynamic>> activities;
 
-  const DashboardSchedule({super.key, required this.activities});
+  const DashboardSchedule({super.key});
 
   @override
-  State<DashboardSchedule> createState() => _DashboardSchedule();
+  ConsumerState<DashboardSchedule> createState() => _DashboardSchedule();
 }
 
-class _DashboardSchedule extends State<DashboardSchedule> {
+class _DashboardSchedule extends ConsumerState<DashboardSchedule> {
   static const List<Map<String, String>> days = [
     {'letter': 'M', 'number': '1'},
     {'letter': 'T', 'number': '2'},
@@ -25,7 +27,8 @@ class _DashboardSchedule extends State<DashboardSchedule> {
 
   @override
   Widget build(BuildContext context) {
-    final activities = widget.activities;
+    final pullData = ref.watch(habitListProvider);
+    final List<ListHabitHive> activities = pullData.value ?? [];
 
     final colors = AppColors.of(context);
 
@@ -45,7 +48,7 @@ class _DashboardSchedule extends State<DashboardSchedule> {
                 itemCount: days.length,
                 itemBuilder: (context, index) {
                   final day = days[index];
-                  return Container(
+                  return SizedBox(
                     width: 50,
                     child: Column(
                       children: [
@@ -55,7 +58,7 @@ class _DashboardSchedule extends State<DashboardSchedule> {
                           width: 30,
                           height: 30,
                           decoration: const BoxDecoration(
-                            color: Colors.grey,
+                            color: Color(0xFFF5F5F5),
                             shape: BoxShape.circle,
                           ),
                           child: Center(child: Text(day['number']!)),
@@ -68,7 +71,8 @@ class _DashboardSchedule extends State<DashboardSchedule> {
             ),
           ),
           SizedBox(height: 10),
-          Padding(// text title my Habit
+          Padding(
+            // text title my Habit
             padding: EdgeInsetsGeometry.directional(start: 10),
             child: Text(
               'My Habit',
@@ -78,36 +82,86 @@ class _DashboardSchedule extends State<DashboardSchedule> {
           SizedBox(height: 10),
           Expanded(
             // list habit yang dilakukan
-            child: Padding(
-              padding: const EdgeInsetsGeometry.symmetric(horizontal: 30),
-              child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                itemCount: activities.length,
-                itemBuilder: (context, index) {
-                  final activity = activities[index];
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: Colors.black, width: 1),
+            child: pullData.when(data: (activities){
+              if(activities.isEmpty){
+                return const Center(
+                  child: Text("No habits yet"),
+                );
+              }
+              return Padding(
+                padding: const EdgeInsetsGeometry.symmetric(horizontal: 30),
+                child: ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: activities.length,
+                  itemBuilder: (context, index) {
+                    final activity = activities[index];
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(color: Colors.black, width: 1),
+                        ),
                       ),
-                    ),
-                    width: 200,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 8,),
-                        Text(activity['title']!,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14),),
-                        SizedBox(height: 10),
-                        Text(activity['desc']!),
-                        SizedBox(height: 10),
-                        Text(activity['times']!),
-                        SizedBox(height: 8,)
-                      ],
-                    ),
-                  );
-                },
-              ),
+                      width: 200,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 8),
+                              Text(
+                                activity.title,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text(activity.desc),
+                              SizedBox(height: 10),
+                              Text(activity.time),
+                              SizedBox(height: 8),
+                            ],
+                          ),
+                          ElevatedButton(onPressed: (){
+                            if(!context.mounted) return;
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Success"),
+                                content: Text("this ${activity.title} habit will be deleted, are you really sure?"),
+                                actionsPadding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 10),
+                                actions: [
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFF5F5F5)),
+                                    onPressed: () {
+                                      ref.read(habitListProvider.notifier).deleteHabit(activity.id);
+                                      Navigator.pop(context);},
+                                    child: const Text("YES"),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("NO",style: TextStyle(color: Colors.white),),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                          }, child: Icon(Icons.delete_forever),)
+
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
+            }, loading: ()=> const Center(
+              child: CircularProgressIndicator(),
             ),
+            error: (err,stack)=>Center(
+              child: Text('ERROR please ask developer'),
+            ))
           ),
         ],
       ),

@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_ce_flutter/adapters.dart';
+import 'package:tugas_habitly/models/list_habit_hive.dart';
 import 'package:tugas_habitly/screen/dashboard/main_dashboard.dart';
-import 'package:tugas_habitly/screen/initiate_pages//dashboard_habit.dart';
+import 'package:tugas_habitly/screen/initiate_pages/dashboard_habit.dart';
 import 'package:tugas_habitly/screen/initiate_pages/dashboard_time.dart';
 import 'package:tugas_habitly/screen/login.dart';
 import 'package:tugas_habitly/screen/register.dart';
 import 'screen/splash_screen.dart';
+import 'package:hive_ce/hive_ce.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+
+  Hive.registerAdapter(ListHabitHiveAdapter());
+
+  await Hive.openBox<ListHabitHive>('list_habit');
+
+  runApp(
+
+      const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

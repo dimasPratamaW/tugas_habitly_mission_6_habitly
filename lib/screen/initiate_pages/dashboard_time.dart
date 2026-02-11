@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tugas_habitly/screen/dashboard/dashboard_schedule.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tugas_habitly/screen/controller/list_habit_controller.dart';
 import 'package:tugas_habitly/screen/dashboard/main_dashboard.dart';
 import 'package:tugas_habitly/style/app_color.dart';
 
-class DashboardTime extends StatelessWidget {
+class DashboardTime extends ConsumerWidget {
   static const routeName = '/dashboard_time';
   const DashboardTime({super.key});
 
@@ -14,17 +15,14 @@ class DashboardTime extends StatelessWidget {
     {'time': '21:00', 'title': 'Evening'},
   ];
 
+
   @override
-  Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
-
+  Widget build(BuildContext context, WidgetRef ref) {
     final args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    final String habitTitle = args['title'] ?? 'unknown habit';
 
-    final email = args['email'] ?? '';
-    final password = args['password'] ?? '';
-    final habit = args['habit'] ?? '';
-
+    final colors = AppColors.of(context);
     return Scaffold(
       backgroundColor: colors.background,
       body: Column(
@@ -36,7 +34,7 @@ class DashboardTime extends StatelessWidget {
               text: 'When you want us to remind u to do ',
               children: [
                 TextSpan(
-                  text: habit,
+                  text: habitTitle,
                   style: const TextStyle(
                     decoration: TextDecoration.underline,
                     decorationThickness: 3
@@ -74,15 +72,11 @@ class DashboardTime extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
+                      ref.read(habitListProvider.notifier).addHabit(habitTitle, "Daily habit", time['time']);
+
                       Navigator.pushReplacementNamed(
                         context,
                         MainDashboard.routeName,
-                        arguments: {
-                          'email': email,
-                          'password': password,
-                          'habit': habit,
-                          'time': time['time'],
-                        },
                       );
                     },
                     child: Column(

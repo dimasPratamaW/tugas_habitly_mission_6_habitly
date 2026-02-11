@@ -1,27 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tugas_habitly/screen/controller/list_habit_controller.dart';
 import 'package:tugas_habitly/style/app_color.dart';
 import 'package:tugas_habitly/widget/custom_field.dart';
 
-class AddNewHabit extends StatefulWidget {
-  final void Function(Map<String, dynamic>) onAdd;
+class AddNewHabit extends ConsumerStatefulWidget {
 
-  const AddNewHabit({super.key, required this.onAdd});
+  const AddNewHabit({super.key,});
 
   @override
-  State<AddNewHabit> createState() => _AddNewHabitState();
+  ConsumerState<AddNewHabit> createState() => _AddNewHabitState();
 }
 
-class _AddNewHabitState extends State<AddNewHabit> {
+class _AddNewHabitState extends ConsumerState<AddNewHabit> {
   final titleHabit = TextEditingController();
   final descHabit = TextEditingController();
   String timeHabit = '06:00';
   DateTime selectedDate = DateTime.now();
-
-  Future<void> _selectDate(DateTime date) async {
-    setState(() {
-      selectedDate = date;
-    });
-  }
 
   @override
   void dispose() {
@@ -32,7 +27,7 @@ class _AddNewHabitState extends State<AddNewHabit> {
 
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
 
     final List<String> timeOptions = [
       '06:00',
@@ -49,7 +44,7 @@ class _AddNewHabitState extends State<AddNewHabit> {
       backgroundColor: colors.background,
       body: Center(
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: Column(
             children: [
               SizedBox(height: 20,),
@@ -90,9 +85,8 @@ class _AddNewHabitState extends State<AddNewHabit> {
                         ),
                         child: InputDatePickerFormField(
                           firstDate: DateTime(2020),
-                          lastDate: DateTime(2027),
+                          lastDate: DateTime(2028),
                           initialDate: selectedDate,
-                          onDateSubmitted: _selectDate,
                           onDateSaved: (date) {
                             selectedDate = date;
                           },
@@ -112,9 +106,7 @@ class _AddNewHabitState extends State<AddNewHabit> {
                           }).toList(),
                           onSelected: (value) {
                             if (value != null) {
-                              setState(() {
-                                timeHabit = value;
-                              });
+                              timeHabit = value;
                             }
                           },
                         ),
@@ -128,21 +120,34 @@ class _AddNewHabitState extends State<AddNewHabit> {
                 padding: EdgeInsetsGeometry.directional(start: 30, end: 30),
                 child: ElevatedButton(
                   //button register
-                  onPressed: () {
-                    if (!_formKey.currentState!.validate()) return;
+                  onPressed: () async {
+                    if (!formKey.currentState!.validate()) return;
 
-                    widget.onAdd({
-                      'title': titleHabit.text,
-                      'desc': descHabit.text,
-                      'times': timeHabit,
-                    });
+                      await ref.read(habitListProvider.notifier).addHabit(
+                        titleHabit.text,
+                        descHabit.text,
+                        timeHabit,
+                      );
 
-                    // optional: clear fields after adding
-                    titleHabit.clear();
-                    descHabit.clear();
-                    setState(() {
-                      timeHabit = timeOptions[0];
-                    });
+                      if(!context.mounted) return;
+
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Success"),
+                          content: const Text("Habit added successfully!"),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      // Clear fields AFTER dialog is closed
+                      titleHabit.clear();
+                      descHabit.clear();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF2FB969),

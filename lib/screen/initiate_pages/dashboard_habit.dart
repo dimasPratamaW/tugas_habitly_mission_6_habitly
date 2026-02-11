@@ -21,10 +21,6 @@ class DashboardHabit extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-
-    final email = args['email'] ?? '';
-    final password = args['password'] ?? '';
     return Scaffold(
       backgroundColor: colors.background,
       body: Column(
@@ -58,11 +54,7 @@ class DashboardHabit extends StatelessWidget {
                       Navigator.pushReplacementNamed(
                         context,
                         DashboardTime.routeName,
-                        arguments: {
-                          'email': email,
-                          'password': password,
-                          'habit': habit['habit']
-                        }
+                        arguments: {'title' :habit['habit']}
                       );
                     },
                     child: Column(

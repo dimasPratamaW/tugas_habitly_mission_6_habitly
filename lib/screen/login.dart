@@ -1,59 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tugas_habitly/screen/controller/user_controller.dart';
 import 'package:tugas_habitly/screen/initiate_pages/dashboard_habit.dart';
 import 'package:tugas_habitly/screen/register.dart';
 import 'package:tugas_habitly/widget/custom_field.dart';
 
 import '../style/app_color.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   static const routeName = '/login';
 
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  String email = '';
-  String password = '';
-
-  Future<void> goToRegister() async {
-    final registeredAccount = await Navigator.pushNamed(
-      context,
-      RegisterView.routeName,
-    );
-
-    if (!mounted) return;
-    if (registeredAccount != null) {
-      final data = registeredAccount as Map<String, dynamic>;
-
-      setState(() {
-        email = data['email'];
-        password = data['password'];
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return LoginView(goRegister: goToRegister);
-  }
-}
-
-class LoginView extends StatefulWidget {
-  final VoidCallback goRegister;
-
-  const LoginView({super.key, required this.goRegister});
-
-  @override
-  State<LoginView> createState() => _LoginViewState();
-}
-
-class _LoginViewState extends State<LoginView> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  void checkUser(){
+      final getAllUser = ref.read(userProvider);
+
+      final bool isAuthenticated = getAllUser.any((user)=>user.email == emailController.text&&user.password == passwordController.text);
+
+      if(isAuthenticated == true){
+        Navigator.pushReplacementNamed(context, DashboardHabit.routeName);
+      }
+      else{
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("invalid user")));
+      }
+
+
+  }
 
   @override
   void dispose() {
@@ -114,15 +95,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   onPressed: () {
                     if (!_formKey.currentState!.validate()) return;
-
-                    Navigator.pushReplacementNamed(
-                      context,
-                      DashboardHabit.routeName,
-                      arguments: {
-                        'email': emailController.text,
-                        'password': passwordController.text,
-                      },
-                    );
+                    checkUser();
                   },
                   child: const Text(
                     "Continue",
@@ -156,7 +129,9 @@ class _LoginViewState extends State<LoginView> {
                       borderRadius: BorderRadiusGeometry.circular(10),
                     ),
                   ),
-                  onPressed: widget.goRegister,
+                  onPressed: (){
+                    Navigator.pushReplacementNamed(context, RegisterView.routeName);
+                  },
                   child: const Text(
                     "Register Account",
                     style: TextStyle(

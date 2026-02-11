@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 
 class UserAccount extends StatelessWidget {
-  final String email;
-  final String password;
-
   const UserAccount({
     super.key,
-    required this.email,
-    required this.password,
   });
 
   @override
@@ -18,9 +13,9 @@ class UserAccount extends StatelessWidget {
         children: [
           const Icon(Icons.account_circle, size: 60),
           const SizedBox(height: 10),
-          Text(email),
+          Text('email'),
           const SizedBox(height: 10),
-          Text(password),
+          Text('password'),
         ],
       ),
     );

@@ -1,54 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:tugas_habitly/screen/dashboard/add_new_habit.dart';
 import 'package:tugas_habitly/screen/dashboard/dashboard_schedule.dart';
 import 'package:tugas_habitly/screen/dashboard/user_account.dart';
-import 'package:tugas_habitly/style/app_color.dart';
 
-class MainDashboard extends StatefulWidget {
+class MainDashboard extends ConsumerStatefulWidget {
   static const routeName = '/main_dashboard';
 
   const MainDashboard({super.key});
 
   @override
-  State<MainDashboard> createState() => _MainDashboardState();
+  ConsumerState<MainDashboard> createState() => _MainDashboardState();
 }
 
-class _MainDashboardState extends State<MainDashboard> {
-  final List<Map<String, dynamic>> listActivities = [
-    {
-      'title': 'Run 5 Km',
-      'desc': 'usually compeleted at 09:00',
-      'times': '09:00',
-    },
-    {
-      'title': 'go to gym',
-      'desc': 'usually compeleted at 16:00 ',
-      'times': '16:00',
-    },
-    {
-      'title': 'reading one page',
-      'desc': 'usually compeleted at 19:00',
-      'times': '19:00',
-    },
-  ];
-
+class _MainDashboardState extends ConsumerState<MainDashboard> {
   int currentPages = 0;
-
-  void addOneHabit(Map<String, dynamic> activity) {
-    setState(() {
-      listActivities.add(activity);
-    });
-  }
-
-  String email = '';
-  String password ='';
 
   List<Widget> pagesWidget() {
     return [
-      DashboardSchedule(activities: listActivities),
-      AddNewHabit(onAdd: addOneHabit),
-      UserAccount(email: email, password: password)
+      DashboardSchedule(),
+      AddNewHabit(),
+      UserAccount()
 
     ];
   }
@@ -72,23 +45,6 @@ class _MainDashboardState extends State<MainDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_loadedFromArgs) {
-      final args =
-          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-
-      setState(() {
-        listActivities.insert(0,{
-          'title': args['habit'],
-          'desc': 'first habit',
-          'times': args['time'],
-        });
-        email = args['email'];
-        password = args['password'];
-
-      });
-      _loadedFromArgs = true;
-    }
-
     return Scaffold(
       appBar: AppBar(
         leading: Center(child: Text("Today")),
