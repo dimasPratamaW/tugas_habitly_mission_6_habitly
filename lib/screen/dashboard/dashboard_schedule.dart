@@ -28,7 +28,6 @@ class _DashboardSchedule extends ConsumerState<DashboardSchedule> {
   @override
   Widget build(BuildContext context) {
     final pullData = ref.watch(habitListProvider);
-    final List<ListHabitHive> activities = pullData.value ?? [];
 
     final colors = AppColors.of(context);
 

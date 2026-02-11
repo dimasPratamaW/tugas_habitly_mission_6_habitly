@@ -26,8 +26,6 @@ class _MainDashboardState extends ConsumerState<MainDashboard> {
     ];
   }
 
-  bool _loadedFromArgs = false;
-
   final List<Widget> _titles = [
     Text(
       DateFormat("MMMM dd").format(DateTime.now()),
